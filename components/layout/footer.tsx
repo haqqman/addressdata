@@ -10,12 +10,12 @@ export function Footer() {
         <p className='text-sm'>
           &copy; {new Date().getFullYear()} AddressData by{' '}
           <Link
-            href='https://seapane.com'
+            href='https://haqqman.com'
             target='_blank'
             rel='noopener noreferrer'
             className='text-primary hover:text-secondary no-underline'
           >
-            Seapane
+            Haqqman
           </Link>
           . All Rights Reserved.
         </p>
