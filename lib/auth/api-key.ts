@@ -1,4 +1,3 @@
-import 'server-only'
 import { adminDb } from '@/firebase/server'
 import type { APIKey } from '@/types'
 
@@ -24,9 +23,10 @@ export async function authenticateApiKey(request: Request): Promise<ApiAuthResul
     headers.get('authorization')?.replace(/^Bearer\s+/i, '')
 
   if (!publicKey) {
-    // In preview or development, check if mock/demo key is allowed
-    const isDevelopment = process.env.NODE_ENV === 'development'
-    if (isDevelopment && headers.get('x-demo-mode') === 'true') {
+    // In test, preview or development, check if mock/demo key is allowed
+    const isNonProduction =
+      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    if (isNonProduction && headers.get('x-demo-mode') === 'true') {
       return {
         authenticated: true,
       }

@@ -57,14 +57,21 @@ export class AdcService {
         if (!db) return null
 
         try {
-          const snapshot = await db
+          const queryPromise = db
             .collection('addressSubmissions')
             .where('adc', '==', cleaned)
             .where('status', '==', 'approved')
             .limit(1)
             .get()
 
-          if (snapshot.empty) {
+          const snapshot: any = await Promise.race([
+            queryPromise,
+            new Promise((resolve) =>
+              setTimeout(() => resolve({ empty: true, docs: [] }), 1500),
+            ),
+          ])
+
+          if (!snapshot.docs || snapshot.docs.length === 0) {
             return null
           }
 

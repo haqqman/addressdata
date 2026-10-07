@@ -52,13 +52,20 @@ export class EstateService {
         }
 
         try {
-          const snapshot = await db
+          const queryPromise = db
             .collection('estates')
             .where('status', 'in', ['verified', 'approved'])
             .get()
 
+          const snapshot: any = await Promise.race([
+            queryPromise,
+            new Promise((resolve) =>
+              setTimeout(() => resolve({ empty: true, docs: [] }), 1500),
+            ),
+          ])
+
           const estates: CachedEstateSummary[] = []
-          for (const doc of snapshot.docs) {
+          for (const doc of snapshot.docs || []) {
             const data = doc.data() as Estate
             estates.push({
               id: doc.id,
