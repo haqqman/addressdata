@@ -12,156 +12,77 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Check if the user is the owner of the document
-    function isDocOwner() {
-      return isAuthenticated() && resource.data.ownerUserId == request.auth.uid;
-    }
-    
-    // Check if the user is setting themselves as owner on create
-    function isSettingSelfAsOwner() {
-      return isAuthenticated() && request.resource.data.ownerUserId == request.auth.uid;
-    }
-    
-    // Standard owner create check
-    function isDocOwnerCreate() {
-      return isSettingSelfAsOwner() && isValidNewDoc();
+    function isConsoleAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/consoleUsers/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/consoleUsers/$(request.auth.uid)).data.role in ['cto', 'administrator', 'manager'];
     }
 
-    // Standard owner update check (preserves ownership)
-    function isDocOwnerUpdate() {
-      return isDocOwner() && request.resource.data.ownerUserId == resource.data.ownerUserId && isValidNewDoc();
-    }
-    
-    // Check if the user is the creator of the document
-    function isCreator() {
-      return isAuthenticated() && resource.data.createdBy == request.auth.uid;
-    }
-
-    function isSettingSelfAsCreator() {
-      return isAuthenticated() && request.resource.data.createdBy == request.auth.uid;
-    }
-
-    function isValidSize() {
-      // NOTE: request.resource.size is invalid in Firestore (only valid in Firebase Storage). 
-      // Firestore enforces a 1MB size limit natively.
-      return true;
-    }
-    
-    function isValidNewDoc() {
-      return isValidSize();
-    }
-
-    // --- Collections ---
-
-    // Users: Self-read/write only
+    // --- Users & Console Users ---
     match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow create: if isOwner(userId) && isValidNewDoc();
-      allow update: if isOwner(userId);
-      allow delete: if false; // Prevent users from deleting their own account for now
+      allow read: if isOwner(userId) || isConsoleAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isConsoleAdmin();
+      allow delete: if false;
     }
 
-    // Console Users: Self-read and restricted update (prevent role escalation)
     match /consoleUsers/{userId} {
-      allow read: if isOwner(userId);
-      allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
-      allow create, delete: if false;
+      allow read: if isOwner(userId) || isConsoleAdmin();
+      allow write: if isConsoleAdmin();
     }
 
-    // Entities: Owner-only access
-    match /entities/{entityId} {
-      allow read: if isDocOwner();
-      allow create: if isDocOwnerCreate();
-      allow update: if isDocOwnerUpdate();
-      allow delete: if isDocOwner();
+    // --- Address Submissions ---
+    match /addressSubmissions/{submissionId} {
+      // Submitter can read their own submission; console admins can read all
+      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isConsoleAdmin();
+      // Authenticated users can submit addresses
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Updates and approvals are reserved for console admins
+      allow update, delete: if isConsoleAdmin();
     }
 
-    // Teams: Self-read only, NO client writes
-    match /teams/{teamId} {
-      allow read: if isAuthenticated() && (request.auth.uid in resource.data.members);
-      allow write: if false; 
+    // --- Gated Estates ---
+    match /estates/{estateId} {
+      // Verified estates are publicly readable (for checkouts, apps, and forms)
+      allow read: if resource.data.status == 'verified' || isConsoleAdmin() || (isAuthenticated() && resource.data.createdBy == request.auth.uid);
+      // Authenticated users can submit pending estates
+      allow create: if isAuthenticated();
+      // Verification and status updates restricted to console admins
+      allow update, delete: if isConsoleAdmin();
     }
 
-    // Invitations: Owner create/delete, invitee accept/decline
-    match /invitations/{invitationId} {
-      allow create: if isAuthenticated() && request.resource.data.inviterId == request.auth.uid && isValidNewDoc();
-      allow delete: if isAuthenticated() && resource.data.inviterId == request.auth.uid;
-      allow read: if isAuthenticated() && (resource.data.inviterId == request.auth.uid || resource.data.inviteeEmail == request.auth.token.email);
-      allow update: if isAuthenticated() && 
-                      resource.data.inviteeEmail == request.auth.token.email && 
-                      request.resource.data.inviterId == resource.data.inviterId &&
-                      request.resource.data.inviteeEmail == resource.data.inviteeEmail &&
-                      isValidNewDoc();
+    // --- Nigerian Geography Hierarchy ---
+    match /nigerianGeography/{stateId} {
+      allow read: if true; // Public read for all applications and forms
+      allow write: if isConsoleAdmin();
+
+      match /lgas/{lgaId} {
+        allow read: if true;
+        allow write: if isConsoleAdmin();
+
+        match /cities/{cityId} {
+          allow read: if true;
+          allow write: if isConsoleAdmin();
+        }
+
+        match /districts/{districtId} {
+          allow read: if true;
+          allow write: if isConsoleAdmin();
+        }
+      }
     }
 
-    // Audit Logs: Owner read, authenticated create, immutable
-    match /audit_logs/{logId} {
-      allow read: if isDocOwner();
-      allow create: if isAuthenticated() && request.resource.data.actor.id == request.auth.uid && request.resource.data.ownerUserId == request.auth.uid && isValidNewDoc();
-      allow update, delete: if false;
+    // --- Developer API Keys ---
+    match /apiKeys/{keyId} {
+      // User can view their own API keys; console admins can view all
+      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isConsoleAdmin();
+      // User can create keys for themselves
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // User can toggle active status of their own key, admin can manage any
+      allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isConsoleAdmin();
+      allow delete: if isConsoleAdmin();
     }
 
-    // Business Data: Owner-only access
-    match /distributors/{docId} {
-      allow read: if isDocOwner();
-      allow create: if isDocOwnerCreate();
-      allow update: if isDocOwnerUpdate();
-      allow delete: if isDocOwner();
-    }
-
-    match /products/{docId} {
-      allow read: if isDocOwner();
-      allow create: if isDocOwnerCreate();
-      allow update: if isDocOwnerUpdate();
-      allow delete: if isDocOwner();
-    }
-
-    match /sales/{docId} {
-      allow read: if isDocOwner();
-      allow create: if isDocOwnerCreate();
-      allow update: if isDocOwnerUpdate();
-      allow delete: if isDocOwner();
-    }
-
-    match /supplies/{docId} {
-      allow read: if isDocOwner();
-      allow create: if isDocOwnerCreate();
-      allow update: if isDocOwnerUpdate();
-      allow delete: if isDocOwner();
-    }
-
-    // Requisitions: Creator or owner access
-    match /requisitions/{docId} {
-      allow read: if isDocOwner() || isCreator();
-      allow create: if isSettingSelfAsOwner() && isSettingSelfAsCreator() && isValidNewDoc();
-      allow update: if (isDocOwner() || isCreator()) && request.resource.data.ownerUserId == resource.data.ownerUserId && request.resource.data.createdBy == resource.data.createdBy && isValidNewDoc();
-      allow delete: if isDocOwner() || isCreator();
-    }
-
-    // Support Tickets: Creator or owner access
-    match /support_tickets/{ticketId} {
-      allow read: if isDocOwner() || isCreator();
-      allow create: if isSettingSelfAsOwner() && isSettingSelfAsCreator() && isValidNewDoc();
-      allow update: if (isDocOwner() || isCreator()) && request.resource.data.ownerUserId == resource.data.ownerUserId && request.resource.data.createdBy == resource.data.createdBy && isValidNewDoc();
-      allow delete: if isDocOwner() || isCreator();
-    }
-
-    // Performance Summaries: Owner read, server-only writes
-    match /performance_summaries/{summaryId} {
-      allow read: if isDocOwner();
-      allow write: if false;
-    }
-
-    // Privileged Collections (NO client access)
-    match /subscription_plans/{planId} {
-      allow read: if isAuthenticated();
-      allow write: if false;
-    }
-
-    match /failed_entity_creations/{docId} {
-      allow read, write: if false; 
-    }
-    
     // Default deny for everything else
     match /{document=**} {
       allow read, write: if false;

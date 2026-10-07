@@ -23,11 +23,14 @@ export interface Address {
   id: string
   physicalAddress?: string
   streetAddress: string
+  landmark?: string
   areaDistrict: string
   city: string
   lga: string
   state: string
   zipCode?: string
+  nipostPostcode?: string // Official NIPOST NDAPS 11-12 character alphanumeric digital postcode (e.g., LA-11-W06-TC-10)
+  adc?: string // Legacy AddressData code
   country: string
   latitude?: number
   longitude?: number
@@ -63,6 +66,7 @@ export interface AddressSubmission {
     estateId?: string | null
     estateName?: string | null
     streetAddress: string
+    landmark?: string | null
     areaDistrict: string
     city: string
     lga: string
@@ -71,10 +75,11 @@ export interface AddressSubmission {
     country: string
   }
   propertyType: 'residential' | 'commercial'
-  adc: string | null // AddressData Code, null until approved
+  nipostPostcode?: string | null // Official NIPOST NDAPS Digital Postcode
+  adc?: string | null // Legacy AddressData Code, kept for backward compatibility
   googleMapsSuggestion?: string
   status: 'pending-review' | 'approved' | 'rejected'
-  aiFlaggedReason?: string | null // Allow null
+  aiFlaggedReason?: string | null
   submittedAt: Date
   reviewedAt?: Date | null
   reviewerId?: string | null
@@ -84,6 +89,8 @@ export interface AddressSubmission {
 export interface FirestoreGeographyStateData {
   name: string
   capital: string
+  code?: string // 2-letter state code (e.g. LA, AB, FC) matching NIPOST prefix
+  zone?: string // Geopolitical zone
 }
 export interface GeographyState extends FirestoreGeographyStateData {
   id: string
@@ -128,6 +135,8 @@ export interface Estate {
     city?: string
     district?: string // Used for FCT districts or other specific areas
   }
+  entranceGate?: string | null // Gate description (e.g. "Main Gate off Admiralty Way", "Gate 2")
+  accessNotes?: string | null // Security protocol (e.g. "Call host for gate code", "Visitor pass required")
   googleMapLink?: string // Optional
   source: string // "AddressData", "Platform", or user-specified
   createdBy: string // User ID of the creator

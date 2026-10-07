@@ -6,7 +6,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest'
 vi.mock('@/ai/genkit', () => ({
   ai: {
     definePrompt: vi.fn(() => vi.fn()),
-    defineFlow: vi.fn((config, implementation) => implementation),
+    defineFlow: vi.fn((config: any, implementation: any) => implementation),
   },
 }))
 
