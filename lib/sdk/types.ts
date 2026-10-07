@@ -124,6 +124,7 @@ export interface AutocompleteOptions {
 export interface AddressDataConfig {
   apiKey?: string
   environment?: 'production' | 'preview'
+  baseUrl?: string
   cacheTtlMs?: number // In-memory hot cache TTL (default: 5 minutes)
   enableLocalFallback?: boolean // Fallback to Tier 0 if upstream unavailable
 }
