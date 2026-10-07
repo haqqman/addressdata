@@ -38,18 +38,18 @@ export default function DocsPage() {
 
   const sdkUsageExample = `import { addressData } from '@addressdata/sdk'
 
-// 1. Deep Address Validation (Nigeria-First with 774 LGA & Estate Intelligence)
+// 1. Address validation with country-aware rules and Nigeria-specific intelligence
 const validation = await addressData.validate({
   country: 'NG',
   state: 'Lagos',
   lga: 'Ikeja',
   street: '15 Allen Avenue',
-  nipostPostcode: '100001'
+  nipostPostcode: 'LA01A03FK01'
 })
 
 console.log(validation.isValid) // true
 console.log(validation.standardized.formattedAddress)
-// "15 Allen Avenue, Ikeja, Ikeja LGA, Lagos State, 100001, Nigeria"
+// "15 Allen Avenue, Ikeja, Ikeja LGA, Lagos State, LA-01-A03-FK-01, Nigeria"
 
 // 2. Ultra-Fast Autocomplete (Estates, Cities & LGAs)
 const suggestions = await addressData.autocomplete('Carlton Gate')
@@ -80,7 +80,7 @@ curl -X POST "${API_BASE_URL}/validate" \\
   "city": "Ikeja",
   "street": "15 Allen Avenue",
   "estate": "Carlton Gate Estate",
-  "nipostPostcode": "100001"
+  "nipostPostcode": "LA01A03FK01"
 }`
 
   const validateResponse = `{
@@ -99,7 +99,7 @@ curl -X POST "${API_BASE_URL}/validate" \\
       "state": "Lagos",
       "lga": "Ikeja",
       "country": "Nigeria",
-      "formattedAddress": "15 Allen Avenue, Carlton Gate Estate, Ikeja, Ikeja LGA, Lagos State, 100001, Nigeria"
+      "formattedAddress": "15 Allen Avenue, Carlton Gate Estate, Ikeja, Ikeja LGA, Lagos State, LA-01-A03-FK-01, Nigeria"
     },
     "errors": [],
     "warnings": [],
@@ -112,7 +112,7 @@ curl -X POST "${API_BASE_URL}/validate" \\
         "lga": "Ikeja",
         "lgaValidForState": true,
         "isFctDistrict": false,
-        "nipostPostcode": "100001",
+        "nipostPostcode": "LA-01-A03-FK-01",
         "estateMatched": {
           "id": "carlton-gate-ikeja",
           "name": "Carlton Gate Estate",
@@ -334,7 +334,7 @@ curl -X POST "${API_BASE_URL}/validate" \\
               Developer Documentation
             </h1>
             <p className='text-xl text-muted-foreground mt-4'>
-              Integrate AddressData into your web, mobile, and backend applications with sub-millisecond precision.
+              Use one API and SDK for address workflows across supported countries, with deeper Nigerian geography and address intelligence.
             </p>
           </div>
 
@@ -345,9 +345,10 @@ curl -X POST "${API_BASE_URL}/validate" \\
                 <Zap className='mr-2 h-6 w-6 text-secondary' /> Introduction
               </h2>
               <p>
-                AddressData is the authoritative address verification and intelligence platform designed specifically for
-                Nigeria, with native global reach. It supports Nigerian state and LGA data, FCT districts, NIPOST postcode formats,
-                and gated residential estates alongside global country and postal-code metadata.
+                AddressData is a global address intelligence platform built in Nigeria. It brings country-aware address validation,
+                formatting, and geography into one developer integration, with deeper Nigerian state, LGA, FCT district, and estate data.
+                Our planned direction is to support Nigeria's Digital Postcode through an authorized integration, with NIPOST remaining
+                the source for issued postcode records and building locations.
               </p>
             </section>
 
@@ -479,8 +480,9 @@ X-RateLimit-Reset: 1728345600`}
                 <h3 className='text-2xl font-semibold text-primary font-mono'>/validate</h3>
               </div>
               <p className='text-muted-foreground text-base mb-4'>
-                Validates an address, checks State-to-LGA administrative hierarchy (<Code>&lt; 1ms</Code>), canonicalizes NIPOST NDAPS
-                digital postcodes, and automatically matches approved gated estates.
+                Validates and standardizes address details for supported countries. For Nigeria, it checks state-to-LGA hierarchy,
+                validates postcode format, and matches approved estates. Confirming that a Digital Postcode is assigned to a building
+                is planned through an authorized NIPOST integration.
               </p>
 
               <p className='text-base font-semibold mb-1'>Request Body (JSON):</p>
@@ -492,6 +494,10 @@ X-RateLimit-Reset: 1728345600`}
               <Code className='text-sm max-w-full block whitespace-pre p-4 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 shadow-sm overflow-x-auto'>
                 {validateResponse}
               </Code>
+              <p className='text-sm text-muted-foreground mt-3'>
+                The <Code>nipostValid</Code> result checks postcode format. Confirming that a Digital Postcode is assigned to a
+                building requires resolution against NIPOST records through the planned authorized integration.
+              </p>
             </section>
 
             <Divider />
@@ -505,7 +511,7 @@ X-RateLimit-Reset: 1728345600`}
                 <h3 className='text-2xl font-semibold text-primary font-mono'>/autocomplete</h3>
               </div>
               <p className='text-muted-foreground text-base mb-4'>
-                Ultra-fast search across Nigerian States, LGAs, verified estates, and global country names.
+                Search supported country names and Nigerian states, LGAs, and verified estates.
               </p>
               <p className='text-base font-semibold mb-1'>Query Parameters:</p>
               <ul className='list-disc list-inside text-base ml-4 mb-4'>
@@ -575,7 +581,7 @@ X-RateLimit-Reset: 1728345600`}
                 <h3 className='text-2xl font-semibold text-primary font-mono'>/geography/states/:stateId/lgas</h3>
               </div>
               <p className='text-muted-foreground text-base mb-4'>
-                Returns the authoritative Local Government Areas for any Nigerian state.
+                Returns Local Government Areas by state from AddressData's Nigerian geography data.
               </p>
               <p className='text-base font-semibold mb-1'>Success Response (200 OK):</p>
               <Code className='text-sm max-w-full block whitespace-pre p-4 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 shadow-sm overflow-x-auto'>

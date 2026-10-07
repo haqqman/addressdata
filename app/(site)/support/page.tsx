@@ -1,24 +1,13 @@
-// app/support/page.tsx
 'use client'
 
-import { SiteHeader } from '@/components/layout/header'
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Button,
-  Input,
-  Textarea,
-} from '@heroui/react'
-import { LifeBuoy, Mail, MessageSquare } from 'lucide-react'
-import Link from 'next/link'
-import { Footer } from '@/components/layout/footer'
 import Image from 'next/image'
-import { useState } from 'react'
+import Link from 'next/link'
+import { Button, Card, CardBody, CardHeader } from '@heroui/react'
+import { BookOpen, LifeBuoy, Mail } from 'lucide-react'
+import { Footer } from '@/components/layout/footer'
+import { SiteHeader } from '@/components/layout/header'
 
 export default function SupportPage() {
-  const [formEmail, setFormEmail] = useState('') // State for controlled email input
-
   return (
     <div className='flex flex-col min-h-screen'>
       <SiteHeader />
@@ -29,139 +18,49 @@ export default function SupportPage() {
               <div className='inline-flex items-center justify-center rounded-full bg-secondary/10 p-3 mb-4'>
                 <LifeBuoy className='h-10 w-10 text-secondary' />
               </div>
-              <h1 className='text-3xl font-bold text-primary'>
-                Get Help &amp; Support
-              </h1>
+              <h1 className='text-3xl font-bold text-primary'>AddressData Support</h1>
               <p className='text-lg text-muted-foreground mt-1'>
-                We&apos;re here to assist you with any questions or issues.
+                Get help with your account, address workflows, or API integration.
               </p>
             </CardHeader>
-            <CardBody className='space-y-10 pt-0 text-foreground/90'>
-              <div className='flex justify-center my-6'>
+            <CardBody className='space-y-8 pt-0 text-foreground/90'>
+              <div className='flex justify-center my-4'>
                 <Image
                   src='https://res.cloudinary.com/seapane-cloud/seapane-bucket/addressdata/meta/address-illustration-pana.svg'
-                  alt='Support Illustration'
+                  alt='Support illustration'
                   width={300}
                   height={250}
-                  data-ai-hint='customer support'
                 />
               </div>
-              <section className='grid md:grid-cols-2 gap-6'>
-                <div className='space-y-3'>
-                  <h2 className='text-2xl font-semibold flex items-center text-primary'>
-                    <Mail className='mr-2 h-6 w-6 text-secondary' /> Email
-                    Support
-                  </h2>
-                  <p>
-                    For general inquiries, technical support, or API integration
-                    help, please email us. We aim to respond within 24-48
-                    business hours.
-                  </p>
-                  <Button
-                    as={Link}
-                    href='mailto:support@addressdata.ng'
-                    color='warning'
-                    className='w-full md:w-auto shadow-md hover:shadow-lg hover:-translate-y-px active:translate-y-0.5 transition-transform duration-150 ease-in-out text-primary'
-                    radius='md'
-                  >
-                    support@addressdata.ng
-                  </Button>
-                </div>
-                <div className='space-y-3'>
-                  <h2 className='text-2xl font-semibold flex items-center text-primary'>
-                    <MessageSquare className='mr-2 h-6 w-6 text-secondary' />{' '}
-                    Community Forum
-                  </h2>
-                  <p>
-                    Join our community forum to ask questions, share solutions,
-                    and connect with other developers and users of AddressData.
-                  </p>
-                  <Button
-                    as={Link}
-                    href='#'
-                    variant='bordered'
-                    color='secondary'
-                    className='w-full md:w-auto shadow-sm hover:shadow-md hover:-translate-y-px active:translate-y-0.5 transition-transform duration-150 ease-in-out'
-                    isDisabled
-                    radius='md'
-                  >
-                    Visit Forum (Coming Soon)
-                  </Button>
-                </div>
+              <section className='text-center space-y-4'>
+                <h2 className='text-2xl font-semibold text-primary'>Contact our team</h2>
+                <p>
+                  Email us with your question and include the endpoint or workflow involved, along with any relevant request ID.
+                  Do not include API secrets or private credentials.
+                </p>
+                <Button
+                  as={Link}
+                  href='mailto:support@addressdata.ng'
+                  color='warning'
+                  className='shadow-md text-primary font-semibold'
+                  radius='md'
+                  startContent={<Mail className='h-4 w-4' />}
+                >
+                  support@addressdata.ng
+                </Button>
               </section>
-
-              <hr className='my-4 border-border' />
-
-              <section>
-                <h2 className='text-2xl font-semibold mb-6 text-center text-primary'>
-                  Contact Us Directly
-                </h2>
-                <form className='space-y-6'>
-                  <div className='grid md:grid-cols-2 gap-6'>
-                    <Input
-                      id='firstName'
-                      label='First Name'
-                      placeholder='Your First Name'
-                      variant='bordered'
-                      classNames={{ label: 'text-base text-primary' }}
-                    />
-                    <Input
-                      id='lastName'
-                      label='Last Name'
-                      placeholder='Your Last Name'
-                      variant='bordered'
-                      classNames={{ label: 'text-base text-primary' }}
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      id='email'
-                      type='email'
-                      label='Email Address'
-                      placeholder='your.email@example.com'
-                      variant='bordered'
-                      classNames={{ label: 'text-base text-primary' }}
-                      value={formEmail}
-                      onValueChange={(value) => {
-                        const transformedValue = value
-                          .toLowerCase()
-                          .replace(/\s+/g, '')
-                        setFormEmail(transformedValue)
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      id='subject'
-                      label='Subject'
-                      placeholder='API Key Issue'
-                      variant='bordered'
-                      classNames={{ label: 'text-base text-primary' }}
-                    />
-                  </div>
-                  <div>
-                    <Textarea
-                      id='message'
-                      label='Message'
-                      placeholder='Describe your issue or question in detail...'
-                      variant='bordered'
-                      minRows={5}
-                      classNames={{ label: 'text-base text-primary' }}
-                    />
-                  </div>
-                  <div className='text-center pt-2'>
-                    <Button
-                      type='submit'
-                      color='warning'
-                      size='lg'
-                      isDisabled
-                      radius='md'
-                      className='shadow-md hover:shadow-lg hover:-translate-y-px active:translate-y-0.5 transition-transform duration-150 ease-in-out text-primary'
-                    >
-                      Send Message (Form Inactive)
-                    </Button>
-                  </div>
-                </form>
+              <section className='text-center border-t border-border pt-6'>
+                <p className='mb-3'>Looking for API setup details?</p>
+                <Button
+                  as={Link}
+                  href='/docs'
+                  variant='bordered'
+                  color='secondary'
+                  radius='md'
+                  startContent={<BookOpen className='h-4 w-4' />}
+                >
+                  Read the developer documentation
+                </Button>
               </section>
             </CardBody>
           </Card>
