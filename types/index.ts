@@ -30,7 +30,6 @@ export interface Address {
   state: string
   zipCode?: string
   nipostPostcode?: string // Official NIPOST NDAPS 11-12 character alphanumeric digital postcode (e.g., LA-11-W06-TC-10)
-  adc?: string // Legacy AddressData code
   country: string
   latitude?: number
   longitude?: number
@@ -76,7 +75,6 @@ export interface AddressSubmission {
   }
   propertyType: 'residential' | 'commercial'
   nipostPostcode?: string | null // Official NIPOST NDAPS Digital Postcode
-  adc?: string | null // Legacy AddressData Code, kept for backward compatibility
   googleMapsSuggestion?: string
   status: 'pending-review' | 'approved' | 'rejected'
   aiFlaggedReason?: string | null

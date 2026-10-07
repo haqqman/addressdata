@@ -87,6 +87,6 @@ describe('addressActions SDK Integration', () => {
     })
 
     expect(result.success).toBe(true)
-    expect((result.submission as any)?.adc).toMatch(/^ADC-LA/)
+    expect((result.submission as any)?.nipostPostcode).toBe('100001')
   })
 })

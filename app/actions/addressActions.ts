@@ -59,15 +59,6 @@ export async function validateNipostPostcode(code: string): Promise<boolean> {
   return addressData.geography.validatePostalCode('NG', code).isValid
 }
 
-// Canonical unique code generation
-const generateADC = (state: string, city: string): string => {
-  const normState = addressData.nigeria.getState(state)
-  const stateCode = normState?.code || state.substring(0, 3).toUpperCase()
-  const cityCode = city.substring(0, 3).toUpperCase()
-  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
-  return `ADC-${stateCode}${cityCode}-${randomPart}`
-}
-
 // Simulate fetching Google Maps address - This remains a mock as it's external
 async function fetchGoogleMapsAddress(
   addressParts: z.infer<typeof addressSchema> & { country: string },
@@ -268,14 +259,11 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
 
     let status: AddressSubmission['status'] = 'pending-review'
     let aiFlaggedReason: string | undefined = undefined
-    let adc: string | null = null
-
     if (aiResult.isDiscrepant) {
       status = 'pending-review'
       aiFlaggedReason = aiResult.reason
     } else {
       status = 'approved'
-      adc = generateADC(submittedAddressData.state, submittedAddressData.city)
     }
 
     const submittedAddressDataForDB = {
@@ -297,7 +285,6 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
       userEmail: activeUser.email || 'user@example.com',
       submittedAddress: submittedAddressDataForDB,
       nipostPostcode: submittedAddressData.nipostPostcode || null,
-      adc: adc,
       googleMapsSuggestion: googleMapsAddress,
       propertyType: submittedAddressData.propertyType,
       status: status,
@@ -419,8 +406,6 @@ export async function updateAddressStatus(
       return { success: false, message: 'Submission not found.' }
     }
 
-    const submissionData = docSnap.data() as AddressSubmission
-
     const updateData: any = {
       status: newStatus,
       reviewedAt: new Date(),
@@ -428,14 +413,6 @@ export async function updateAddressStatus(
     }
 
     if (reviewNotes) updateData.reviewNotes = reviewNotes
-
-    // Generate ADC on approval if it doesn't exist
-    if (newStatus === 'approved' && !submissionData.adc) {
-      updateData.adc = generateADC(
-        submissionData.submittedAddress.state,
-        submissionData.submittedAddress.city,
-      )
-    }
 
     await submissionRef.update(updateData)
 

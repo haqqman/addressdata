@@ -185,11 +185,6 @@ function SearchResults() {
                       {formatAddress(address.submittedAddress)}
                     </p>
                     <div className='flex items-center gap-4 mt-2 text-xs text-foreground-500'>
-                      {address.adc && (
-                        <Chip size='sm' variant='flat' color='secondary'>
-                          {address.adc}
-                        </Chip>
-                      )}
                       <span>
                         Submitted: {format(new Date(address.submittedAt), 'PP')}
                       </span>

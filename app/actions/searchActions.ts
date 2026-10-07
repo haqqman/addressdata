@@ -26,13 +26,12 @@ async function searchAddresses(term: string): Promise<AddressSubmission[]> {
   const submissionsCol = adminDb.collection('addressSubmissions')
 
   // Note: Firestore does not support full-text search on its own.
-  // This query looks for an exact match on the ADC or case-insensitive partial matches on address components.
+  // This query looks for case-insensitive partial matches on address components.
   // Using Admin SDK `Filter`
   const query = submissionsCol.where(
     Filter.and(
       Filter.where('status', '==', 'approved'),
       Filter.or(
-        Filter.where('adc', '==', term.toUpperCase()),
         Filter.where('submittedAddress.streetAddress', '>=', term),
         Filter.where('submittedAddress.streetAddress', '<=', term + '\uf8ff'),
         Filter.where('submittedAddress.city', '==', term),
@@ -48,10 +47,7 @@ async function searchAddresses(term: string): Promise<AddressSubmission[]> {
     // Manual filtering for case-insensitivity as Firestore is limited
     const fullAddress =
       `${data.submittedAddress.streetAddress} ${data.submittedAddress.city} ${data.submittedAddress.lga}`.toLowerCase()
-    if (
-      data.adc === term.toUpperCase() ||
-      fullAddress.includes(term.toLowerCase())
-    ) {
+    if (fullAddress.includes(term.toLowerCase())) {
       addresses.push({ id: doc.id, ...data })
     }
   })

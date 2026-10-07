@@ -6,7 +6,6 @@ import {
 import { validatePostalCode } from './tier0/postal-validators'
 import { NigeriaGeographyEngine } from './tier0/nigeria-engine'
 import { EstateService } from './tier1/estate-service'
-import { AdcService } from './tier1/adc-service'
 import type {
   AddressDataConfig,
   ValidateAddressInput,
@@ -117,15 +116,6 @@ export class AddressData {
         hierarchy.matchedLga?.id,
       )
 
-      // Tier 1: ADC Format / Verification
-      let verifiedAdc: string | undefined
-      if (hierarchy.matchedState && hierarchy.matchedLga) {
-        // Construct standard ADC candidate prefix
-        const stateCode = hierarchy.matchedState.code
-        const lgaClean = hierarchy.matchedLga.id.slice(0, 3).toUpperCase()
-        verifiedAdc = `ADC-${stateCode}-${lgaClean}`
-      }
-
       const isValid = errors.length === 0
       const confidence = isValid ? (matchedEstate ? 'exact' : 'high') : 'invalid'
 
@@ -139,7 +129,6 @@ export class AddressData {
         isFctDistrict: hierarchy.matchedLga?.isFctDistrict,
         nipostPostcode: postalValidation.formatted || rawPostcode,
         nipostValid: postalValidation.isValid,
-        adc: verifiedAdc,
         estate: matchedEstate
           ? {
               id: matchedEstate.id,
@@ -307,18 +296,7 @@ export class AddressData {
   }
 
   // ==========================================
-  // 3. Lookup By Code (ADC)
-  // ==========================================
-
-  /**
-   * Looks up a verified address by its unique AddressData Code (ADC).
-   */
-  async lookupByCode(adc: string) {
-    return AdcService.lookupByCode(adc)
-  }
-
-  // ==========================================
-  // 4. Sub-Namespace: Geography (Global)
+  // 3. Sub-Namespace: Geography (Global)
   // ==========================================
 
   readonly geography = {

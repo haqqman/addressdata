@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardBody,
   Input,
-  Chip,
   Code,
 } from '@heroui/react'
 import {
@@ -21,8 +20,6 @@ import {
   Gauge,
   Layers,
   Search,
-  Package,
-  Sparkles,
 } from 'lucide-react'
 import { SiteHeader } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -232,14 +229,6 @@ export default function HomePage() {
           <div className='max-w-7xl mx-auto px-4'>
             <div className='flex flex-col lg:flex-row items-center gap-12'>
               <div className='lg:w-1/2'>
-                <div className='flex items-center gap-2 mb-3'>
-                  <Chip color='warning' variant='flat' size='sm' startContent={<Sparkles className='h-3.5 w-3.5' />}>
-                    100 Free Requests / Day
-                  </Chip>
-                  <Chip color='primary' variant='flat' size='sm' startContent={<Package className='h-3.5 w-3.5' />}>
-                    @addressdata/sdk
-                  </Chip>
-                </div>
                 <h2 className='text-3xl md:text-4xl font-bold text-primary mb-4'>
                   Powerful &amp; Simple Developer API
                 </h2>
@@ -264,7 +253,7 @@ export default function HomePage() {
                       icon: (
                         <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/api/v1/lookup-by-code: Resolve verified AddressData Codes (ADC).',
+                      text: '/api/v1/geography/states: Retrieve Nigerian state and LGA data.',
                     },
                     {
                       icon: (

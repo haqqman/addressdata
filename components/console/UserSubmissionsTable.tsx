@@ -55,7 +55,6 @@ export function UserSubmissionsTable({
         <TableHeader>
           <TableColumn>USER</TableColumn>
           <TableColumn>SUBMITTED ADDRESS</TableColumn>
-          <TableColumn>ADC</TableColumn>
           <TableColumn>TYPE</TableColumn>
           <TableColumn>STATUS</TableColumn>
           <TableColumn>SUBMITTED AT</TableColumn>
@@ -83,9 +82,6 @@ export function UserSubmissionsTable({
                     {formatFullAddress(submission.submittedAddress)}
                   </div>
                 </Tooltip>
-              </TableCell>
-              <TableCell className='font-mono text-xs'>
-                {submission.adc || 'N/A'}
               </TableCell>
               <TableCell className='capitalize text-xs font-semibold'>
                 {submission.propertyType || 'N/A'}

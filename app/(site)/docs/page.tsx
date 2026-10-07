@@ -55,9 +55,9 @@ console.log(validation.standardized.formattedAddress)
 const suggestions = await addressData.autocomplete('Carlton Gate')
 console.log(suggestions)
 
-// 3. Lookup Verified Address by AddressData Code (ADC)
-const verified = await addressData.lookupByCode('ADC-LAIKE-98A1B2')
-console.log(verified)`
+// 3. Validate Nigerian administrative geography
+const isValidLocation = addressData.nigeria.validateHierarchy('Lagos', 'Ikeja')
+console.log(isValidLocation.isValid)`
 
   const authExample = `// Include your API key in either header:
 // Option A: X-Public-Key (Recommended)
@@ -118,8 +118,7 @@ curl -X POST "${API_BASE_URL}/validate" \\
           "name": "Carlton Gate Estate",
           "state": "Lagos",
           "lga": "Ikeja"
-        },
-        "adcCandidate": "ADC-LA-IKE"
+        }
       }
     }
   }
@@ -145,20 +144,6 @@ curl -X POST "${API_BASE_URL}/validate" \\
       "country": "NG"
     }
   ]
-}`
-
-  const lookupByCodeResponse = `{
-  "success": true,
-  "data": {
-    "adc": "ADC-LAIKE-98A1B2",
-    "streetAddress": "15 Allen Avenue",
-    "city": "Ikeja",
-    "lga": "Ikeja",
-    "state": "Lagos",
-    "country": "Nigeria",
-    "nipostPostcode": "100001",
-    "status": "approved"
-  }
 }`
 
   const countriesResponse = `{
@@ -300,11 +285,6 @@ curl -X POST "${API_BASE_URL}/validate" \\
                   </Link>
                 </li>
                 <li>
-                  <Link href='#lookup-code-endpoint' className='text-foreground/80 hover:text-secondary transition-colors'>
-                    GET /lookup-by-code/:code
-                  </Link>
-                </li>
-                <li>
                   <Link href='#geography-countries' className='text-foreground/80 hover:text-secondary transition-colors'>
                     GET /geography/countries
                   </Link>
@@ -366,9 +346,8 @@ curl -X POST "${API_BASE_URL}/validate" \\
               </h2>
               <p>
                 AddressData is the authoritative address verification and intelligence platform designed specifically for
-                Nigeria, with native global reach. It resolves the deepest nuances of Nigerian addresses — verifying all{' '}
-                <strong>774 LGAs</strong>, FCT districts, official <strong>NIPOST NDAPS</strong> digital postcodes, gated residential
-                estates, and canonical AddressData Codes (ADC).
+                Nigeria, with native global reach. It supports Nigerian state and LGA data, FCT districts, NIPOST postcode formats,
+                and gated residential estates alongside global country and postal-code metadata.
               </p>
             </section>
 
@@ -549,25 +528,6 @@ X-RateLimit-Reset: 1728345600`}
 
             <Divider />
 
-            {/* GET /lookup-by-code/:code */}
-            <section id='lookup-code-endpoint'>
-              <div className='flex items-center gap-3 mb-2'>
-                <Chip color='secondary' variant='solid' className='font-mono font-bold'>
-                  GET
-                </Chip>
-                <h3 className='text-2xl font-semibold text-primary font-mono'>/lookup-by-code/:code</h3>
-              </div>
-              <p className='text-muted-foreground text-base mb-4'>
-                Resolves an address record by its unique AddressData Code (ADC), returning canonical street, district, and coordinates.
-              </p>
-              <p className='text-base font-semibold mb-1'>Success Response (200 OK):</p>
-              <Code className='text-sm max-w-full block whitespace-pre p-4 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 shadow-sm overflow-x-auto'>
-                {lookupByCodeResponse}
-              </Code>
-            </section>
-
-            <Divider />
-
             {/* GET /geography/countries */}
             <section id='geography-countries'>
               <div className='flex items-center gap-3 mb-2'>
@@ -661,7 +621,7 @@ X-RateLimit-Reset: 1728345600`}
                   <Code>401 Unauthorized</Code>: Missing, inactive, or invalid API key.
                 </li>
                 <li>
-                  <Code>404 Not Found</Code>: Resource or ADC code does not exist.
+                  <Code>404 Not Found</Code>: Requested resource does not exist.
                 </li>
                 <li>
                   <Code>429 Too Many Requests</Code>: Daily free tier quota (100 req/day) exceeded.

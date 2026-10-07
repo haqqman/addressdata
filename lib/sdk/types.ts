@@ -62,7 +62,6 @@ export interface NigerianIntelligence {
   isFctDistrict?: boolean
   nipostPostcode?: string
   nipostValid: boolean
-  adc?: string
   estate?: {
     id: string
     name: string

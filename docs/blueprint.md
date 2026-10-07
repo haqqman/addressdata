@@ -80,7 +80,6 @@ This blueprint outlines the technical architecture for a Nigerian address verifi
 - **AI-Assisted Review**:
   - If the submitted address matches Google Maps (via Genkit flow), it is auto-approved.
   - If not, it is flagged for manual review in the admin console.
-- **Address Code Assignment**: Each verified address is assigned a unique **AddressData Code** (ADC) (Note: ADC generation logic to be implemented, likely part of the `addressSubmissions` becoming "verified" or moving to a `verifiedAddresses` collection if separated).
 
 ---
 
@@ -91,7 +90,6 @@ This blueprint outlines the technical architecture for a Nigerian address verifi
   - Keys enable controlled access to various endpoints (rate-limited).
 - **Endpoints** (Implemented via Cloud Functions or Next.js API Routes if not using Cloud Functions directly for this):
   - `/api/autocomplete`: Suggest addresses from verified Nigerian addresses.
-  - `/api/lookup-by-code`: Fetch full address by **AddressData Code**.
   - `/api/states`: List all Nigerian states, each with their respective LGAs and cities.
   - `/api/states/{stateId}/lgas`: List LGAs for a state.
   - `/api/states/{stateId}/lgas/{lgaId}/cities`: List cities for an LGA.

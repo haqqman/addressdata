@@ -109,7 +109,6 @@ async function runSdkTests() {
   console.log(`  * LGA: ${ngRes.nigeria?.lga} (Belongs to ${ngRes.nigeria?.state}: ${ngRes.nigeria?.lgaValidForState})`)
   console.log(`  * Zone: ${ngRes.nigeria?.geopoliticalZone}`)
   console.log(`  * NIPOST NDAPS: ${ngRes.nigeria?.nipostPostcode} (Valid: ${ngRes.nigeria?.nipostValid})`)
-  console.log(`  * ADC Candidate: ${ngRes.nigeria?.adc}\n`)
 
   if (!ngRes.isValid || !ngRes.nigeria?.lgaValidForState) {
     throw new Error('TEST 5 FAILED: Nigerian validation failed')

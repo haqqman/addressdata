@@ -83,9 +83,6 @@ export function AddressList({ addresses, title }: AddressListProps) {
           <Table aria-label='Address Contributions List' removeWrapper>
             <TableHeader>
               <TableColumn>ADDRESS</TableColumn>
-              <TableColumn className={isMobile ? 'hidden' : ''}>
-                ADC
-              </TableColumn>
               <TableColumn>SUBMITTED</TableColumn>
               <TableColumn>TYPE</TableColumn>
               <TableColumn>STATUS</TableColumn>
@@ -104,15 +101,6 @@ export function AddressList({ addresses, title }: AddressListProps) {
                     title={formatAddress(item.submittedAddress)}
                   >
                     {formatAddress(item.submittedAddress)}
-                  </TableCell>
-                  <TableCell
-                    className={
-                      isMobile
-                        ? 'hidden font-mono text-xs'
-                        : 'font-mono text-xs'
-                    }
-                  >
-                    {item.adc || 'N/A'}
                   </TableCell>
                   <TableCell>
                     {format(new Date(item.submittedAt), 'PP')}

@@ -28,10 +28,6 @@ export {
   EstateService,
   type CachedEstateSummary,
 } from './tier1/estate-service'
-export {
-  AdcService,
-  type VerifiedAdcRecord,
-} from './tier1/adc-service'
 
 // Convenience default client instance
 import { AddressData } from './client'
