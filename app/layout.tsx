@@ -12,7 +12,8 @@ const urbanist = Urbanist({
 
 export const metadata: Metadata = {
   title: 'AddressData',
-  description: 'Address intelligence platform for Nigeria.',
+  description:
+    'One platform for address validation, standardization, and geography across countries, with deeper address intelligence for Nigeria.',
 }
 
 export default function RootLayout({
