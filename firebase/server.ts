@@ -46,4 +46,5 @@ if (!app) {
 
 export const adminAuth = getAuth(app)
 export const adminDb = getFirestore(app)
+export type Transaction = Parameters<Parameters<typeof adminDb.runTransaction>[0]>[0]
 export default admin

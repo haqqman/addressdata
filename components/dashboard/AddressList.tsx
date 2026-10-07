@@ -61,7 +61,7 @@ export function AddressList({ addresses, title }: AddressListProps) {
         </CardHeader>
         <CardBody className='p-6'>
           <p className='text-foreground-500'>
-            You haven't contributed any addresses yet.
+            You haven&apos;t contributed any addresses yet.
           </p>
         </CardBody>
       </Card>

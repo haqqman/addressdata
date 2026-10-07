@@ -470,7 +470,7 @@ fetch('${API_BASE_URL}/address/lookup-by-code/ADC123XYZ', {
                   <ul className='list-disc list-inside text-base ml-4 mb-2'>
                     <li>
                       <Code>stateName</Code> (string, required): The name of
-                      the state (e.g., "Lagos"). Case-insensitive.
+                      the state (e.g., &quot;Lagos&quot;). Case-insensitive.
                     </li>
                   </ul>
                   <p className='text-base mb-1'>

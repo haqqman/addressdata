@@ -12,11 +12,13 @@ const addressSchema = z
     estateId: z.string().optional(),
     estateName: z.string().optional(),
     street: z.string().min(1, 'Street is required'),
+    landmark: z.string().optional(),
     areaDistrict: z.string().optional(),
     city: z.string().min(1, 'City is required'),
     lga: z.string().min(1, 'LGA is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().optional(),
+    nipostPostcode: z.string().optional(),
     propertyType: z.enum(['residential', 'commercial']),
   })
   .refine(
@@ -50,7 +52,15 @@ const convertTimestamps = (docData: any): any => {
   return data
 }
 
-// Simplified unique code generation
+// Import pure NIPOST validator from geography data module
+import { isValidNipostPostcode } from '@/lib/data/nigeria-geography'
+
+// Server Action wrapper for NIPOST postcode validation
+export async function validateNipostPostcode(code: string): Promise<boolean> {
+  return isValidNipostPostcode(code)
+}
+
+// Legacy unique code generation (retained for backward compatibility)
 const generateADC = (state: string, city: string): string => {
   const stateCode = state.substring(0, 3).toUpperCase()
   const cityCode = city.substring(0, 3).toUpperCase()
@@ -149,11 +159,13 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
     estateId: formData.get('estateId') as string | undefined,
     estateName: formData.get('estateName') as string | undefined,
     street: formData.get('street') as string,
+    landmark: (formData.get('landmark') as string) || undefined,
     areaDistrict: formData.get('areaDistrict') as string,
     city: formData.get('city') as string,
     lga: formData.get('lga') as string,
     state: formData.get('state') as string,
     zipCode: formData.get('zipCode') as string | undefined,
+    nipostPostcode: (formData.get('nipostPostcode') as string) || undefined,
     propertyType: formData.get('propertyType') as 'residential' | 'commercial',
   }
 
@@ -174,11 +186,12 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
     const userSubmittedString = [
       submittedAddressData.estateName,
       submittedAddressData.street,
+      submittedAddressData.landmark ? `(near ${submittedAddressData.landmark})` : null,
       submittedAddressData.areaDistrict,
       submittedAddressData.city,
       submittedAddressData.lga,
       submittedAddressData.state,
-      submittedAddressData.zipCode,
+      submittedAddressData.nipostPostcode || submittedAddressData.zipCode,
       country,
     ]
       .filter(Boolean)
@@ -210,6 +223,7 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
       estateId: submittedAddressData.estateId || null,
       estateName: submittedAddressData.estateName || null,
       streetAddress: submittedAddressData.street,
+      landmark: submittedAddressData.landmark || '',
       areaDistrict: submittedAddressData.areaDistrict || '',
       city: submittedAddressData.city,
       lga: submittedAddressData.lga,
@@ -223,6 +237,7 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
       userName: activeUser.displayName || 'User',
       userEmail: activeUser.email || 'user@example.com',
       submittedAddress: submittedAddressDataForDB,
+      nipostPostcode: submittedAddressData.nipostPostcode || null,
       adc: adc,
       googleMapsSuggestion: googleMapsAddress,
       propertyType: submittedAddressData.propertyType,

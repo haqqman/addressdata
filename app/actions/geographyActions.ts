@@ -1,7 +1,12 @@
 'use server'
 
-import { adminDb } from '@/firebase/server'
+import { adminDb, type Transaction } from '@/firebase/server'
 import { requireRefroshAdmin } from '@/lib/auth/server-utils'
+import {
+  NIGERIAN_STATES,
+  getLgasByStateId,
+  getStateById,
+} from '@/lib/data/nigeria-geography'
 import type {
   GeographyState,
   GeographyLGA,
@@ -42,13 +47,30 @@ export async function getStates(): Promise<GeographyState[]> {
     const statesCol = adminDb.collection(GEOGRAPHY_COLLECTION)
     const snapshot = await statesCol.orderBy('name').get()
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as FirestoreGeographyStateData),
+    if (!snapshot.empty) {
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as FirestoreGeographyStateData),
+      }))
+    }
+
+    // Graceful fallback to authoritative static dataset
+    return NIGERIAN_STATES.map((s) => ({
+      id: s.id,
+      name: s.name,
+      capital: s.capital,
+      code: s.code,
+      zone: s.zone,
     }))
   } catch (error) {
-    console.error('Error fetching states:', error)
-    return []
+    console.warn('Falling back to static states dataset due to error/empty state:', error)
+    return NIGERIAN_STATES.map((s) => ({
+      id: s.id,
+      name: s.name,
+      capital: s.capital,
+      code: s.code,
+      zone: s.zone,
+    }))
   }
 }
 
@@ -71,7 +93,7 @@ export async function deleteState(stateId: string): Promise<void> {
     await requireRefroshAdmin()
     const stateRef = adminDb.collection(GEOGRAPHY_COLLECTION).doc(stateId)
 
-    await adminDb.runTransaction(async (transaction) => {
+    await adminDb.runTransaction(async (transaction: Transaction) => {
       const lgasSnapshot = await transaction.get(
         stateRef.collection(LGAS_SUBCOLLECTION),
       )
@@ -125,14 +147,29 @@ export async function getLgasForState(
       .collection(LGAS_SUBCOLLECTION)
     const snapshot = await lgasCol.orderBy('name').get()
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
+    if (!snapshot.empty) {
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        stateId: stateId,
+        ...(doc.data() as Omit<FirestoreGeographyLGAData, 'stateId'>),
+      }))
+    }
+
+    // Graceful fallback to static dataset
+    const staticLgas = getLgasByStateId(stateId)
+    return staticLgas.map((l) => ({
+      id: l.id,
+      name: l.name,
       stateId: stateId,
-      ...(doc.data() as Omit<FirestoreGeographyLGAData, 'stateId'>),
     }))
   } catch (error) {
-    console.error('Error fetching LGAs for state:', stateId, error)
-    return []
+    console.warn(`Falling back to static LGAs for ${stateId} due to error/empty state:`, error)
+    const staticLgas = getLgasByStateId(stateId)
+    return staticLgas.map((l) => ({
+      id: l.id,
+      name: l.name,
+      stateId: stateId,
+    }))
   }
 }
 
@@ -164,7 +201,7 @@ export async function deleteLga(stateId: string, lgaId: string): Promise<void> {
       .collection(LGAS_SUBCOLLECTION)
       .doc(lgaId)
 
-    await adminDb.runTransaction(async (transaction) => {
+    await adminDb.runTransaction(async (transaction: Transaction) => {
       const citiesSnapshot = await transaction.get(
         lgaRef.collection(CITIES_SUBCOLLECTION),
       )
