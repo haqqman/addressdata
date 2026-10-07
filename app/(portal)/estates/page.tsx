@@ -24,12 +24,25 @@ import {
 import { AlertTriangle, PlusCircle, Search } from 'lucide-react'
 import NextLink from 'next/link'
 
+type EstateStatusFilter = 'verified' | 'pending-review' | 'rejected'
+
+const estateStatusFilters: {
+  key: EstateStatusFilter
+  label: string
+}[] = [
+  { key: 'verified', label: 'Verified' },
+  { key: 'pending-review', label: 'Pending' },
+  { key: 'rejected', label: 'Rejected' },
+]
+
 export default function EstatesPage() {
   const [estates, setEstates] = useState<Estate[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filterValue, setFilterValue] = useState('')
   const [stateFilter, setStateFilter] = useState<Selection>(new Set([]))
+  const [statusFilter, setStatusFilter] =
+    useState<EstateStatusFilter>('verified')
 
   const fetchEstates = useCallback(async () => {
     setIsLoading(true)
@@ -52,6 +65,17 @@ export default function EstatesPage() {
 
   const hasSearchFilter = Boolean(filterValue)
 
+  const statusCounts = useMemo(
+    () => ({
+      verified: estates.filter((estate) => estate.status === 'verified').length,
+      'pending-review': estates.filter(
+        (estate) => estate.status === 'pending-review',
+      ).length,
+      rejected: estates.filter((estate) => estate.status === 'rejected').length,
+    }),
+    [estates],
+  )
+
   const uniqueStates = useMemo(() => {
     const statesSet = new Set<string>()
     estates.forEach((estate) => {
@@ -63,7 +87,9 @@ export default function EstatesPage() {
   }, [estates])
 
   const filteredItems = useMemo(() => {
-    let filteredEstates = [...estates]
+    let filteredEstates = estates.filter(
+      (estate) => estate.status === statusFilter,
+    )
 
     if (hasSearchFilter) {
       filteredEstates = filteredEstates.filter(
@@ -81,7 +107,7 @@ export default function EstatesPage() {
     }
 
     return filteredEstates
-  }, [estates, filterValue, hasSearchFilter, stateFilter])
+  }, [estates, filterValue, hasSearchFilter, stateFilter, statusFilter])
 
   const onSearchChange = useCallback((value?: string) => {
     if (value) {
@@ -133,36 +159,54 @@ export default function EstatesPage() {
       </div>
 
       <Card className='shadow-lg rounded-xl bg-background'>
-        <CardHeader className='p-6 flex flex-col md:flex-row justify-between items-center gap-4'>
+        <CardHeader className='p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
           <h2 className='text-xl font-semibold text-primary w-full md:w-auto'>
             {filteredItems.length}{' '}
             {filteredItems.length === 1 ? 'Estate' : 'Estates'}
           </h2>
-          <div className='w-full md:w-auto md:flex-grow md:max-w-2xl flex flex-col md:flex-row gap-4'>
-            <Select
-              label='Filter by State'
-              placeholder='All States'
-              size='sm'
-              selectedKeys={stateFilter}
-              onSelectionChange={setStateFilter}
-              className='w-full md:max-w-xs'
+          <div className='w-full md:w-auto flex flex-col gap-3'>
+            <div
+              role='group'
+              aria-label='Filter estates by status'
+              className='flex flex-wrap gap-2'
             >
-              {uniqueStates.map((state) => (
-                <SelectItem key={state}>
-                  {state}
-                </SelectItem>
+              {estateStatusFilters.map(({ key, label }) => (
+                <Button
+                  key={key}
+                  size='sm'
+                  color={statusFilter === key ? 'warning' : 'default'}
+                  variant={statusFilter === key ? 'solid' : 'bordered'}
+                  aria-pressed={statusFilter === key}
+                  onPress={() => setStatusFilter(key)}
+                >
+                  {label} ({statusCounts[key]})
+                </Button>
               ))}
-            </Select>
-            <Input
-              isClearable
-              placeholder='Search by name or code...'
-              startContent={<Search className='h-4 w-4 text-default-400' />}
-              className='w-full md:max-w-xs'
-              value={filterValue}
-              size='sm'
-              onClear={onClear}
-              onValueChange={onSearchChange}
-            />
+            </div>
+            <div className='flex w-full flex-col sm:flex-row gap-3'>
+              <Select
+                label='Filter by State'
+                placeholder='All States'
+                size='sm'
+                selectedKeys={stateFilter}
+                onSelectionChange={setStateFilter}
+                className='w-full sm:max-w-xs'
+              >
+                {uniqueStates.map((state) => (
+                  <SelectItem key={state}>{state}</SelectItem>
+                ))}
+              </Select>
+              <Input
+                isClearable
+                placeholder='Search by name or code...'
+                startContent={<Search className='h-4 w-4 text-default-400' />}
+                className='w-full sm:max-w-xs'
+                value={filterValue}
+                size='sm'
+                onClear={onClear}
+                onValueChange={onSearchChange}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardBody className='p-2 md:p-4'>
