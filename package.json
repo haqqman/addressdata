@@ -2,7 +2,7 @@
   "name": "addressdata",
   "version": "1.0.0",
   "private": true,
-  "appcredit": "Haqqman.Agency",
+  "appcredit": "Studio.Haqqman.Com",
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx ai/dev.ts",

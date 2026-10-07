@@ -52,17 +52,17 @@ const convertTimestamps = (docData: any): any => {
   return data
 }
 
-// Import pure NIPOST validator from geography data module
-import { isValidNipostPostcode } from '@/lib/data/nigeria-geography'
+import { addressData } from '@/lib/sdk'
 
-// Server Action wrapper for NIPOST postcode validation
+// Server Action wrapper for NIPOST postcode validation powered by SDK
 export async function validateNipostPostcode(code: string): Promise<boolean> {
-  return isValidNipostPostcode(code)
+  return addressData.geography.validatePostalCode('NG', code).isValid
 }
 
-// Legacy unique code generation (retained for backward compatibility)
+// Canonical unique code generation
 const generateADC = (state: string, city: string): string => {
-  const stateCode = state.substring(0, 3).toUpperCase()
+  const normState = addressData.nigeria.getState(state)
+  const stateCode = normState?.code || state.substring(0, 3).toUpperCase()
   const cityCode = city.substring(0, 3).toUpperCase()
   const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
   return `ADC-${stateCode}${cityCode}-${randomPart}`
@@ -156,15 +156,15 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
   }
 
   const rawFormData = {
-    estateId: formData.get('estateId') as string | undefined,
-    estateName: formData.get('estateName') as string | undefined,
+    estateId: (formData.get('estateId') as string) || undefined,
+    estateName: (formData.get('estateName') as string) || undefined,
     street: formData.get('street') as string,
     landmark: (formData.get('landmark') as string) || undefined,
-    areaDistrict: formData.get('areaDistrict') as string,
+    areaDistrict: (formData.get('areaDistrict') as string) || undefined,
     city: formData.get('city') as string,
     lga: formData.get('lga') as string,
     state: formData.get('state') as string,
-    zipCode: formData.get('zipCode') as string | undefined,
+    zipCode: (formData.get('zipCode') as string) || undefined,
     nipostPostcode: (formData.get('nipostPostcode') as string) || undefined,
     propertyType: formData.get('propertyType') as 'residential' | 'commercial',
   }
@@ -181,6 +181,65 @@ export async function submitAddress({ formData, user }: SubmitAddressParams) {
 
   const submittedAddressData = validation.data
   const country = 'Nigeria'
+
+  // Tier 0: Instant Nigeria State -> LGA Hierarchy Validation (< 0.1ms, $0)
+  const hierarchyCheck = addressData.nigeria.validateHierarchy(
+    submittedAddressData.state,
+    submittedAddressData.lga,
+  )
+  if (!hierarchyCheck.isValid) {
+    return {
+      success: false,
+      errors: {
+        lga: [
+          hierarchyCheck.error ||
+            `LGA '${submittedAddressData.lga}' does not belong to ${submittedAddressData.state}.`,
+        ],
+      },
+      message:
+        hierarchyCheck.error ||
+        `LGA '${submittedAddressData.lga}' does not belong to ${submittedAddressData.state}.`,
+    }
+  }
+
+  // Tier 0: NIPOST NDAPS Postal Code Validation & Formatting (< 0.1ms, $0)
+  if (submittedAddressData.nipostPostcode) {
+    const postalCheck = addressData.geography.validatePostalCode(
+      'NG',
+      submittedAddressData.nipostPostcode,
+    )
+    if (!postalCheck.isValid) {
+      return {
+        success: false,
+        errors: {
+          nipostPostcode: [
+            postalCheck.error || 'Invalid Nigerian postal code format (must be 6 digits).',
+          ],
+        },
+        message: postalCheck.error || 'Invalid postal code format.',
+      }
+    }
+    if (postalCheck.formatted) {
+      submittedAddressData.nipostPostcode = postalCheck.formatted
+    }
+  }
+
+  // Tier 1: Gated Estate Auto-Resolution & Canonicalization (Cache/Firestore)
+  if (submittedAddressData.estateName || submittedAddressData.street) {
+    const candidateQuery =
+      submittedAddressData.estateName || submittedAddressData.street
+    const matchedEstate = await addressData.nigeria.matchEstate(
+      candidateQuery,
+      submittedAddressData.state,
+      submittedAddressData.lga,
+    )
+    if (matchedEstate) {
+      submittedAddressData.estateId = matchedEstate.id
+      if (!submittedAddressData.estateName) {
+        submittedAddressData.estateName = matchedEstate.name
+      }
+    }
+  }
 
   try {
     const userSubmittedString = [
