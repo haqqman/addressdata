@@ -5,7 +5,8 @@ async function runSdkTests() {
   console.log('🚀 Running AddressData Global SDK (Tier 0 & Tier 1) Tests')
   console.log('====================================================\n')
 
-  const ad = new AddressData()
+  const ad = new AddressData({ environment: 'preview' })
+  console.log(`Initialized SDK in "${ad.environment}" environment (Base URL: ${ad.getBaseUrl()})\n`)
 
   // ----------------------------------------------------------------
   // TEST 1: Tier 0 Global Country Resolution (< 1ms)

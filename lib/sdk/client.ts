@@ -36,6 +36,20 @@ export class AddressData {
     }
   }
 
+  /**
+   * Returns the API base URL corresponding to the active environment.
+   */
+  getBaseUrl(): string {
+    if (this.config.baseUrl) return this.config.baseUrl
+    return this.config.environment === 'preview'
+      ? 'https://api.preview.addressdata.ng/v1'
+      : 'https://api.addressdata.ng/v1'
+  }
+
+  get environment(): 'production' | 'preview' {
+    return this.config.environment || 'production'
+  }
+
   // ==========================================
   // 1. Unified Address Validation
   // ==========================================
