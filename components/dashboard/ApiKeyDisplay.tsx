@@ -14,6 +14,9 @@ import {
   Listbox,
   ListboxItem,
   Chip,
+  Tabs,
+  Tab,
+  Code,
 } from '@heroui/react'
 import {
   Copy,
@@ -23,7 +26,11 @@ import {
   KeyRound,
   PlusCircle,
   Trash2,
-} from 'lucide-react' // Removed RefreshCw as it's not used
+  Terminal,
+  BookOpen,
+  Sparkles,
+} from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
 import {
   createApiKey,
@@ -364,6 +371,71 @@ export function ApiKeyDisplay() {
               ))}
             </Listbox>
           )}
+        </CardBody>
+      </Card>
+
+      {/* Developer Quickstart & Rate Limits Card */}
+      <Card className='shadow-lg rounded-xl bg-background mt-8 border border-primary/10'>
+        <CardHeader className='px-6 pt-6 pb-2 flex justify-between items-start'>
+          <div className='flex flex-col space-y-1'>
+            <div className='flex items-center gap-2'>
+              <Terminal className='h-5 w-5 text-secondary' />
+              <h2 className='text-xl font-semibold text-primary'>Developer Quickstart &amp; Quota</h2>
+            </div>
+            <p className='text-sm text-foreground-500'>
+              Use your API key to authenticate requests across our SDK or direct REST endpoints.
+            </p>
+          </div>
+          <Chip color='warning' variant='flat' size='sm' startContent={<Sparkles className='h-3.5 w-3.5' />}>
+            Free Tier: 100 reqs/day
+          </Chip>
+        </CardHeader>
+        <CardBody className='p-6 space-y-4'>
+          <Tabs color='warning' variant='bordered'>
+            <Tab key='sdk' title='TypeScript / Bun SDK'>
+              <div className='space-y-2 mt-2'>
+                <p className='text-xs text-foreground-500'>Install package:</p>
+                <Code className='text-xs block p-3 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 font-mono'>
+                  bun add @addressdata/sdk
+                </Code>
+                <p className='text-xs text-foreground-500 mt-2'>Validate an address:</p>
+                <Code className='text-xs block p-3 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 font-mono overflow-x-auto whitespace-pre'>
+{`import { addressData } from '@addressdata/sdk'
+
+const result = await addressData.validate({
+  country: 'NG',
+  state: 'Lagos',
+  lga: 'Ikeja',
+  street: '15 Allen Avenue'
+})`}
+                </Code>
+              </div>
+            </Tab>
+            <Tab key='curl' title='cURL / REST API'>
+              <div className='space-y-2 mt-2'>
+                <p className='text-xs text-foreground-500'>HTTP Request:</p>
+                <Code className='text-xs block p-3 rounded-lg bg-[#0F172A] text-slate-50 border border-slate-800 font-mono overflow-x-auto whitespace-pre'>
+{`curl -X POST "https://api.addressdata.ng/api/v1/validate" \\
+  -H "X-Public-Key: ${userApiKeys[0]?.publicKey || 'YOUR_API_KEY'}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"country": "NG", "state": "Lagos", "lga": "Ikeja", "street": "15 Allen Ave"}'`}
+                </Code>
+              </div>
+            </Tab>
+          </Tabs>
+
+          <div className='pt-2 flex justify-end'>
+            <Button
+              as={Link}
+              href='/docs'
+              color='secondary'
+              variant='flat'
+              size='sm'
+              startContent={<BookOpen className='h-4 w-4' />}
+            >
+              View Full API Documentation
+            </Button>
+          </div>
         </CardBody>
       </Card>
     </>

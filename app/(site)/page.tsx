@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardBody,
   Input,
+  Chip,
+  Code,
 } from '@heroui/react'
 import {
   CheckCircle,
@@ -19,6 +21,8 @@ import {
   Gauge,
   Layers,
   Search,
+  Package,
+  Sparkles,
 } from 'lucide-react'
 import { SiteHeader } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -228,32 +232,45 @@ export default function HomePage() {
           <div className='max-w-7xl mx-auto px-4'>
             <div className='flex flex-col lg:flex-row items-center gap-12'>
               <div className='lg:w-1/2'>
-                <h2 className='text-3xl md:text-4xl font-bold text-primary mb-6'>
-                  Powerful & Simple Developer API
+                <div className='flex items-center gap-2 mb-3'>
+                  <Chip color='warning' variant='flat' size='sm' startContent={<Sparkles className='h-3.5 w-3.5' />}>
+                    100 Free Requests / Day
+                  </Chip>
+                  <Chip color='primary' variant='flat' size='sm' startContent={<Package className='h-3.5 w-3.5' />}>
+                    @addressdata/sdk
+                  </Chip>
+                </div>
+                <h2 className='text-3xl md:text-4xl font-bold text-primary mb-4'>
+                  Powerful &amp; Simple Developer API
                 </h2>
                 <p className='text-foreground/80 mb-4 text-lg'>
-                  Integrate robust address validation and lookup into your
-                  applications with our easy-to-use API.
+                  Integrate robust address validation, NIPOST NDAPS verification, and estate lookups into your applications with our modern API and SDK.
                 </p>
-                <ul className='space-y-3 text-foreground/80 mb-8'>
+                <ul className='space-y-3 text-foreground/80 mb-6'>
                   {[
                     {
                       icon: (
-                        <CheckCircle className='h-5 w-5 text-secondary mr-2' />
+                        <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/autocomplete: Suggest verified Nigerian addresses.',
+                      text: '/api/v1/validate: Sub-millisecond validation with 774 LGA & estate matching.',
                     },
                     {
                       icon: (
-                        <CheckCircle className='h-5 w-5 text-secondary mr-2' />
+                        <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/lookup-by-code: Fetch full address by AddressData Code.',
+                      text: '/api/v1/autocomplete: Instant search across Nigerian estates, LGAs & cities.',
                     },
                     {
                       icon: (
-                        <CheckCircle className='h-5 w-5 text-secondary mr-2' />
+                        <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/states: List Nigerian states, LGAs, and cities.',
+                      text: '/api/v1/lookup-by-code: Resolve verified AddressData Codes (ADC).',
+                    },
+                    {
+                      icon: (
+                        <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
+                      ),
+                      text: '@addressdata/sdk: Native TypeScript & Bun client with zero dependencies.',
                     },
                   ].map((item) => (
                     <li key={item.text} className='flex items-center'>
@@ -262,16 +279,21 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <Button
-                  size='lg'
-                  color='warning'
-                  as={Link}
-                  href='/docs'
-                  radius='md'
-                  className='text-primary shadow-md hover:shadow-lg hover:-translate-y-px active:translate-y-0.5 transition-transform duration-150 ease-in-out'
-                >
-                  View API Documentation
-                </Button>
+                <div className='flex flex-wrap items-center gap-3'>
+                  <Button
+                    size='lg'
+                    color='warning'
+                    as={Link}
+                    href='/docs'
+                    radius='md'
+                    className='text-primary shadow-md hover:shadow-lg hover:-translate-y-px active:translate-y-0.5 transition-transform duration-150 ease-in-out font-semibold'
+                  >
+                    View API Documentation
+                  </Button>
+                  <Code className='text-sm px-3 py-2 rounded-lg bg-default-100 border border-default-200 font-mono'>
+                    bun add @addressdata/sdk
+                  </Code>
+                </div>
               </div>
               <div className='lg:w-1/2'>
                 <Image

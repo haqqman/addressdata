@@ -15,7 +15,7 @@ import {
 } from '@heroui/react'
 import { submitAddress, lookupZipCode } from '@/app/actions/addressActions'
 import { getEstates } from '@/app/actions/estateActions'
-import { CheckCircle, AlertTriangle, Info } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Info, ShieldCheck } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import {
@@ -35,6 +35,7 @@ const addressSchema = z
     lga: z.string().min(1, 'LGA is required'),
     state: z.string().min(1, 'State is required'),
     zipCode: z.string().optional(),
+    nipostPostcode: z.string().optional(),
     propertyType: z.enum(['residential', 'commercial'], {
       required_error: 'Property type is required',
     }),
@@ -97,6 +98,7 @@ export function AddressForm({ onSubmissionSuccess }: AddressFormProps) {
       lga: '',
       state: '',
       zipCode: '',
+      nipostPostcode: '',
       propertyType: 'residential',
     },
   })
@@ -323,39 +325,46 @@ export function AddressForm({ onSubmissionSuccess }: AddressFormProps) {
             name='estateId'
             control={control}
             render={({ field }) => (
-              <Autocomplete
-                label='Estate (Optional)'
-                placeholder='Search for an estate or select None'
-                variant='bordered'
-                isLoading={isLoadingEstates}
-                selectedKey={field.value || 'none'}
-                onSelectionChange={(key) => {
-                  const val = key === 'none' || !key ? '' : key.toString()
-                  field.onChange(val)
-                  const selectedEstate = estates.find((est) => est.id === val)
-                  setValue(
-                    'estateName',
-                    selectedEstate ? selectedEstate.name : '',
-                    { shouldValidate: false }
-                  )
-                }}
-                onBlur={field.onBlur}
-                ref={field.ref}
-                name={field.name}
-                isInvalid={!!errors.estateId}
-                errorMessage={errors.estateId?.message}
-              >
-                {[
-                  <AutocompleteItem key="none">
-                    None
-                  </AutocompleteItem>,
-                  ...estates.map((estate) => (
-                    <AutocompleteItem key={estate.id}>
-                      {estate.name}
-                    </AutocompleteItem>
-                  )),
-                ]}
-              </Autocomplete>
+              <div>
+                <Autocomplete
+                  label='Estate (Optional)'
+                  placeholder='Search for an estate or select None'
+                  variant='bordered'
+                  isLoading={isLoadingEstates}
+                  selectedKey={field.value || 'none'}
+                  onSelectionChange={(key) => {
+                    const val = key === 'none' || !key ? '' : key.toString()
+                    field.onChange(val)
+                    const selectedEstate = estates.find((est) => est.id === val)
+                    setValue(
+                      'estateName',
+                      selectedEstate ? selectedEstate.name : '',
+                      { shouldValidate: false }
+                    )
+                  }}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  name={field.name}
+                  isInvalid={!!errors.estateId}
+                  errorMessage={errors.estateId?.message}
+                >
+                  {[
+                    <AutocompleteItem key="none">
+                      None
+                    </AutocompleteItem>,
+                    ...estates.map((estate) => (
+                      <AutocompleteItem key={estate.id}>
+                        {estate.name}
+                      </AutocompleteItem>
+                    )),
+                  ]}
+                </Autocomplete>
+                {field.value && field.value !== 'none' && (
+                  <div className='mt-1.5 flex items-center gap-1.5 text-xs text-success font-medium'>
+                    <ShieldCheck className='h-3.5 w-3.5' /> Verified Gated Estate Linked
+                  </div>
+                )}
+              </div>
             )}
           />
           <Controller
@@ -490,7 +499,7 @@ export function AddressForm({ onSubmissionSuccess }: AddressFormProps) {
             render={({ field }) => (
               <Input
                 {...field}
-                label='Street'
+                label='Street Address'
                 placeholder='123 Main Street'
                 variant='bordered'
                 isInvalid={!!errors.street}
@@ -500,13 +509,30 @@ export function AddressForm({ onSubmissionSuccess }: AddressFormProps) {
             )}
           />
           <Controller
+            name='nipostPostcode'
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                label='NIPOST Digital Postcode (NDAPS)'
+                placeholder='e.g. 100001 or LA-11-W06'
+                variant='bordered'
+                isInvalid={!!errors.nipostPostcode}
+                errorMessage={errors.nipostPostcode?.message}
+                fullWidth
+              />
+            )}
+          />
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <Controller
             name='zipCode'
             control={control}
             render={({ field }) => (
               <Input
                 {...field}
-                label='Zip Code (Auto)'
-                placeholder={isFetchingZipCode ? 'Searching Google Maps...' : '- - - - -'}
+                label='Postal Code / Zip (Auto-Detected)'
+                placeholder={isFetchingZipCode ? 'Searching...' : '- - - - -'}
                 variant='bordered'
                 isReadOnly
                 classNames={{
