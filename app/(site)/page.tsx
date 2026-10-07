@@ -32,50 +32,51 @@ export default function HomePage() {
   const features = [
     {
       icon: <MapPin className='h-8 w-8 text-secondary' />,
-      title: 'Accurate Address Entry',
+      title: 'Addresses That Fit Each Place',
       description:
-        'Users can save addresses exactly as they appear physically, capturing local nuances.',
+        'Capture addresses in the formats people use locally, then organize them into a consistent structure across countries.',
       dataAiHint: 'map location',
     },
     {
       icon: <ShieldCheck className='h-8 w-8 text-secondary' />,
-      title: 'AI-Assisted Verification',
+      title: 'Address Verification',
       description:
-        'Addresses are auto-approved if matching Google Maps, or flagged for console review.',
+        'Compare address details with trusted location data and route uncertain matches for review.',
       dataAiHint: 'AI checkmark',
     },
     {
       icon: <KeyRound className='h-8 w-8 text-secondary' />,
       title: 'Developer API Access',
       description:
-        'Secure API keys provide access to endpoints for address lookup and autocompletion.',
+        'Use one API and SDK to validate, standardize, and find addresses across supported countries.',
       dataAiHint: 'API key',
     },
     {
       icon: <SearchCheck className='h-8 w-8 text-secondary' />,
       title: 'Smart Autocomplete',
-      description: 'Speed up forms with verified Nigerian address suggestions.',
+      description:
+        'Help people complete address forms with relevant place and address suggestions.',
       dataAiHint: 'search complete',
     },
     {
       icon: <DatabaseZap className='h-8 w-8 text-secondary' />,
       title: 'Structured Storage',
       description:
-        'Addresses stored in a standardized format for maximum compatibility.',
+        'Keep address records consistent and useful across products, teams, and regions.',
       dataAiHint: 'database structure',
     },
     {
       icon: <Gauge className='h-8 w-8 text-secondary' />,
-      title: '99.99% Up-time',
+      title: 'Built for Reliable Access',
       description:
-        'We guarantee our performance. Intelligent routing, address data optimization and cache.',
+        'Designed to support dependable address workflows as your products and markets grow.',
       dataAiHint: 'performance gauge',
     },
     {
       icon: <Layers className='h-8 w-8 text-secondary' />,
-      title: 'Geography Data',
+      title: 'Global Geography Data',
       description:
-        'Access structured Nigerian states, LGAs, and cities for location-aware apps.',
+        'Work with country and postal data worldwide, with detailed Nigerian states, LGAs, and cities.',
       dataAiHint: 'geography database',
     },
   ]
@@ -119,13 +120,13 @@ export default function HomePage() {
               />
             </div>
             <h1 className='text-4xl md:text-6xl font-bold tracking-tight text-primary'>
-              The Future of Nigerian AddressData
+              One Address Platform. From Nigeria to the World.
             </h1>
             <div className='mt-10 max-w-xl mx-auto'>
               <form onSubmit={handleSearchSubmit} className='flex gap-2'>
                 <Input
-                  aria-label='Search by Address or Estate Code'
-                  placeholder='Enter address or estate code'
+                  aria-label='Search Nigerian addresses or estates'
+                  placeholder='Search a Nigerian address or estate'
                   variant='bordered'
                   size='lg'
                   value={searchQuery}
@@ -147,9 +148,10 @@ export default function HomePage() {
               </form>
             </div>
             <p className='mt-6 text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto'>
-              AddressData provides developers, businesses, and operations with
-              tools to validate, store, and retrieve Nigerian address data
-              efficiently and accurately.
+              AddressData gives developers, businesses, and operations teams
+              one platform to validate, standardize, store, and retrieve
+              address data across countries, with deeper address intelligence
+              for Nigeria.
             </p>
           </div>
         </section>
@@ -173,8 +175,8 @@ export default function HomePage() {
                   Why AddressData?
                 </h2>
                 <p className='text-foreground/80 mb-8 md:mb-12'>
-                  Our platform is purpose-built for Nigeria, offering
-                  unparalleled accuracy and developer-friendly tools.
+                  Work with addresses across countries through one platform,
+                  with deeper geographic and address intelligence for Nigeria.
                 </p>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
                   {features.slice(0, 4).map((feature, index) => (
@@ -230,10 +232,10 @@ export default function HomePage() {
             <div className='flex flex-col lg:flex-row items-center gap-12'>
               <div className='lg:w-1/2'>
                 <h2 className='text-3xl md:text-4xl font-bold text-primary mb-4'>
-                  Powerful &amp; Simple Developer API
+                  One API for Addresses Around the World
                 </h2>
                 <p className='text-foreground/80 mb-4 text-lg'>
-                  Integrate robust address validation, NIPOST NDAPS verification, and estate lookups into your applications with our modern API and SDK.
+                  Build global address workflows with one API and SDK, with Nigeria-specific geography, postcode support, and estate data. We aim to integrate with NIPOST’s Digital Postcode through an authorized connection.
                 </p>
                 <ul className='space-y-3 text-foreground/80 mb-6'>
                   {[
@@ -241,25 +243,25 @@ export default function HomePage() {
                       icon: (
                         <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/api/v1/validate: Sub-millisecond validation with 774 LGA & estate matching.',
+                      text: '/api/v1/validate: Validate and standardize address details across supported countries.',
                     },
                     {
                       icon: (
                         <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/api/v1/autocomplete: Instant search across Nigerian estates, LGAs & cities.',
+                      text: '/api/v1/autocomplete: Find relevant places and address suggestions.',
                     },
                     {
                       icon: (
                         <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '/api/v1/geography/states: Retrieve Nigerian state and LGA data.',
+                      text: '/api/v1/geography/states: Access detailed Nigerian state and LGA data.',
                     },
                     {
                       icon: (
                         <CheckCircle className='h-5 w-5 text-secondary mr-2 flex-shrink-0' />
                       ),
-                      text: '@addressdata/sdk: Native TypeScript & Bun client with zero dependencies.',
+                      text: '@addressdata/sdk: Use the same address tools from TypeScript and Bun.',
                     },
                   ].map((item) => (
                     <li key={item.text} className='flex items-center'>
@@ -306,11 +308,11 @@ export default function HomePage() {
           <div className='absolute inset-0 bg-primary/80'></div>
           <div className='max-w-7xl mx-auto px-4 text-center relative z-10'>
             <h2 className='text-3xl md:text-4xl font-bold mb-6 text-white'>
-              Ready to Elevate Your Address Handling?
+              Build Address Experiences for Every Market
             </h2>
             <p className='text-lg md:text-xl mb-10 max-w-2xl mx-auto text-white/90'>
-              Join AddressData today and experience the difference accurate,
-              structured address data can make.
+              Bring country-specific address data into one consistent workflow
+              as your business grows across borders.
             </p>
             <Button
               size='lg'

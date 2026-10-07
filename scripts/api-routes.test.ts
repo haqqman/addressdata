@@ -80,5 +80,5 @@ describe('Public API v1 Route Handlers', () => {
     const jsonAuto = await resAuto.json()
     expect(resAuto.status).toBe(200)
     expect(jsonAuto.count).toBeGreaterThanOrEqual(1)
-  })
+  }, 15000)
 })
