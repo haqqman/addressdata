@@ -46,3 +46,4 @@ pnpm-lock.yaml
 
 # Git specific (if any, like .gitattributes if managed by user)
 .gitattributes
+CLAUDE.md
